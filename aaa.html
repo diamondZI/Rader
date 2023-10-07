@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas绘制等边三角形</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
+
+    <script>
+        var canvas = document.getElementById("myCanvas");
+        var ctx = canvas.getContext("2d");
+
+        var centerX = canvas.width / 2;
+        var centerY = canvas.height / 2;
+        var radius = 100;
+
+        // 计算等边三角形的边长和高度
+        var sideLength = 2 * radius * Math.sin(Math.PI / 3);
+        var height = radius * Math.cos(Math.PI / 6);
+
+        // 计算三个顶点的坐标
+        var pointA = { x: centerX, y: centerY - radius };
+        var pointB = { x: centerX + sideLength / 2, y: centerY + height };
+        var pointC = { x: centerX - sideLength / 2, y: centerY + height };
+
+        // 绘制等边三角形
+        ctx.beginPath();
+        ctx.moveTo(pointA.x, pointA.y);
+        ctx.lineTo(pointB.x, pointB.y);
+        ctx.lineTo(pointC.x, pointC.y);
+        ctx.closePath();
+        ctx.strokeStyle = "blue";
+        ctx.stroke();
+
+        // 绘制圆心
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 3, 0, 2 * Math.PI);
+        ctx.fillStyle = "red";
+        ctx.fill();
+
+    </script>
+</body>
+</html>
