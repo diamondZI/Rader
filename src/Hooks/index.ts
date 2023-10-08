@@ -37,11 +37,14 @@ function leftline(ctx:CanvasRenderingContext2D) {
      ctx.setLineDash([])
  }
  function linereal(ctx:CanvasRenderingContext2D ,x:number,y:number,nx:number,ny:number) {
-    ctx.setLineDash([])
-    ctx.beginPath()
-     ctx.moveTo(x,y)
-     ctx.lineTo(nx,ny)
-     ctx.stroke()
+   ctx.beginPath()
+   ctx.setLineDash([])
+   ctx.lineWidth=1.2
+    ctx.strokeStyle='rbg(0,181,26)'
+    ctx.moveTo(x,y)
+    ctx.lineTo(nx,ny)
+    ctx.stroke()
+  
  }
  function CameraDraw(ctx:CanvasRenderingContext2D,X_Y:{x:number,y:number}) {
  
@@ -98,21 +101,22 @@ function leftline(ctx:CanvasRenderingContext2D) {
       ctx.setLineDash([])
     ctx.strokeStyle='black'
  }
+
  function ArcLineDarw(ctx:CanvasRenderingContext2D,x:number,y:number,angle:number) {
      ctx.beginPath();  
-  
-     ctx.moveTo(x,y)
-     ctx.lineTo(x+20,y)
-     ctx.lineTo(x+10,y+20)
+  ctx.arc(x,y,10,0,Math.PI*2)
+   //   ctx.moveTo(x,y)
+   //   ctx.lineTo(x+20,y)
+   //   ctx.lineTo(x+10,y+20)
      ctx.fillStyle='green'
 
     ctx.fill();
      ctx.stroke() 
      
  }
- function textDraw(ctx:CanvasRenderingContext2D,x:number,y:number,angle:any,text='1') {
-    ctx.font = '18px serif';
+ function textDraw(ctx:CanvasRenderingContext2D,x:number,y:number,size=18,text='1') {
+    ctx.font =`${size}px serif`;
     ctx.fillStyle = 'aliceblue';
     ctx.fillText(text, x, y);
  }
- export {leftline,rightline,PointDraw,line,CameraDraw ,ArcDarw,ArcDarwfill,Redline,ArcLineDarw,textDraw}
+ export {leftline,rightline,PointDraw,line,CameraDraw ,ArcDarw,ArcDarwfill,Redline,ArcLineDarw,textDraw,linereal}

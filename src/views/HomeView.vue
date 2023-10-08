@@ -1,19 +1,26 @@
 <script setup lang="ts">
 
 import {onMounted,computed, ref,reactive,watch} from 'vue'
-import {leftline,rightline,PointDraw,line,CameraDraw,textDraw, ArcDarw,ArcDarwfill,Redline,ArcLineDarw} from '@/Hooks/index'
-import {useMouse} from '@vueuse/core'
-
-
+import {leftline,rightline,PointDraw,line,linereal,
+  CameraDraw,textDraw, ArcDarw,ArcDarwfill,Redline,ArcLineDarw} from '@/Hooks/index'
+import {useMouse,useMouseInElement} from '@vueuse/core'
 const canvas =ref<HTMLCanvasElement|undefined>()
 const canvas2 =ref<HTMLCanvasElement|undefined>()
 const canvas3 =ref<HTMLCanvasElement|undefined>()
 const canvas4 =ref<HTMLCanvasElement|undefined>()
-const {x,y}=useMouse()
+const {elementX:x,elementY:y}=useMouseInElement(canvas)
+const time=reactive({
+  open:false,
+  content:'10'
+})
+const focal_length=reactive({
+  open:false,
+  content:'50-120'
+})
 const W=400
 const H=400
 let angle=0
-let speed=0.02
+
 const shottype=ref(3)
 const Arccenter={
   x:W/2,
@@ -244,7 +251,6 @@ function calculateGradientCoordinate(
     x0 = -x1;
     y0 = -y1;
   }
-
   // 坐标系更改为canvas标准，Y轴向下为正方向
   x0 = Math.round(x0 + width / 2);
   y0 = Math.round(height / 2 - y0);
@@ -284,14 +290,14 @@ function init() {
   CameraDraw(ctx2,Camera_height)
   PointDraw(ctx3,point_height)
   Redline(ctx)
- textDraw(ctx,195,75,0,"8")
- textDraw(ctx,200-100,115,0,"7")
- textDraw(ctx,200-100,75*4,0,"1")
- textDraw(ctx,200+100,75*4,0,"3")
- textDraw(ctx,200+100,115,0,"9")
- textDraw(ctx,195,335,0,"2")
- textDraw(ctx,60,205,0,"4")
- textDraw(ctx,330,205,0,"6")
+ textDraw(ctx,195,75,18,"8")
+ textDraw(ctx,200-100,115,18,"7")
+ textDraw(ctx,200-100,75*4,18,"1")
+ textDraw(ctx,200+100,75*4,18,"3")
+ textDraw(ctx,200+100,115,18,"9")
+ textDraw(ctx,195,335,18,"2")
+ textDraw(ctx,60,205,18,"4")
+ textDraw(ctx,330,205,18,"6")
 }
 const a=()=>{
       Camera_height.y=y.value
@@ -309,6 +315,8 @@ onMounted(()=>{
  init()
   
  canvas4.value!.onmousedown=()=>{
+
+  
   if (x.value<=Arc.x+20&&x.value>=Arc.x-20&&y.value<=Arc.y+10&&y.value>=Arc.y-10) {
       canvas4.value!.addEventListener('mousemove',ArcmoVE)
   }
@@ -317,6 +325,9 @@ onMounted(()=>{
    canvas4.value!.removeEventListener('mousemove',ArcmoVE)
  }
  addEventListener('mousemove',()=>{
+  console.log(x.value);
+  console.log(y.value);
+  
    if (x.value<62&&x.value>30&&y.value==Camera_height.y||x.value<=Arc.x+20&&x.value>=Arc.x-20&&y.value==Arc.y||x.value<=360&&x.value>=345&&y.value==point_height.y) {
   document.documentElement.style.cursor='pointer'
    }else{
@@ -344,9 +355,8 @@ onMounted(()=>{
    removeEventListener('mousemove',b)
  }) 
  addEventListener('keydown',(even:KeyboardEvent)=>{
-  console.log(even.key);
-  
-   if (even.key==='ArrowUp') {
+  if (time.open==false&&focal_length.open==false) {
+    if (even.key==='ArrowUp') {
     angle+=0.2
     Dctx4()
    }else if(even.key==='ArrowDown'){
@@ -389,6 +399,7 @@ onMounted(()=>{
     
    }
    
+  }
  })
 })
      
@@ -407,22 +418,77 @@ onMounted(()=>{
      ctx4.clearRect(0,0,400,400)
      ArcLineDarw(ctx4,Arc.x,Arc.y,angle)
      name(ctx4)
-     line(ctx4,Arc.x,Arc.y,Arccenter.x,Arccenter.y)
+     linereal(ctx4,Arc.x,Arc.y,Arccenter.x,Arccenter.y)
     })
 </script>
 
 <template>
-  <div style="background-color: black;">
-     <canvas ref="canvas" width="400" height="400" id="Canvas" style=" border: 1px black solid; "></canvas>
+  <div >
+     <canvas ref="canvas" width="400" height="400" id="Canvas" style=" border: 1px black solid; ">
+    </canvas>
      <canvas ref="canvas2" width="400" height="400" id="Canvas2" style="border: 1px rgb(0, 0, 0) solid; "></canvas>
      <canvas ref="canvas3" width="400" height="400" id="Canvas2" style="border: 1px rgb(0, 0, 0) solid;"></canvas>
      <canvas ref="canvas4" width="400" height="400" id="Canvas2" style="border: 1px rgb(0, 0, 0) solid; "></canvas>
+     <section class="one">
+       <p v-if="!time.open"  @click="time.open=!time.open"><b style="font-size: 26px;">{{ time.content.toString() }}</b>s</p>
+       <input v-else type="text" focus  v-model="time.content" @focusout="time.open=!time.open" @keydown.enter="
+        time.open=!time.open ">
+     </section>
+     <section class="two">
+       <p v-if="!focal_length.open"  @click="focal_length.open=!focal_length.open">
+        <span>mm</span>
+        <b style="font-size: 19px;">{{ focal_length.content.toString() }}</b></p>
+        <input type="text" v-else v-model="focal_length.content" @focusout="focal_length.open=!focal_length.open" @keydown.enter="focal_length.open=!focal_length.open">
+     </section>
+     <!-- <section >2</section> -->
   </div>
 </template>
-<style>
+<style scoped>
+div{
+  margin-top:200px;
+  width: 400px;
+  height: 400px;
+  position: absolute;
+  user-select: none;
+  -webkit-user-seletct: none;-moz-user-seletct: none;
+}
+.one {
+left: 290px;
+top: 50px;
+ color: aliceblue;
+  position: relative;
+}
+.two {
+
+left: 280px;
+top: 270px;
+ color: aliceblue;
+  position: relative;
+}
+.two input,.one input{
+  outline-style: none ;
+    border: 1px solid #ccc; 
+    background: #000;
+    color: aliceblue;
+    border-radius: 3px;
+    width: 50px;
+    font-size: 14px;
+    font-family: "Microsoft soft";
+}
+.two p{
+  height: 20px;
+  
+  display: flex;
+  flex-direction: column;
+  /* justify-content: start; */
+  align-items: start;
+}
+.two p b{
+  padding: 0;
+}
 canvas{
   position: absolute;
-margin: 0 au;
+margin: 0 ;
 }
 #Canvas {
   position: absolute;
