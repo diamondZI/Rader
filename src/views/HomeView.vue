@@ -3,7 +3,7 @@
 import {onMounted,computed, ref,reactive,watch} from 'vue'
 import {leftline,rightline,PointDraw,line,linereal,
   CameraDraw,textDraw, ArcDarw,ArcDarwfill,Redline,ArcLineDarw} from '@/Hooks/index'
-import {useMouse,useMouseInElement} from '@vueuse/core'
+import {useMouseInElement} from '@vueuse/core'
 const canvas =ref<HTMLCanvasElement|undefined>()
 const canvas2 =ref<HTMLCanvasElement|undefined>()
 const canvas3 =ref<HTMLCanvasElement|undefined>()
@@ -20,7 +20,6 @@ const focal_length=reactive({
 const W=400
 const H=400
 let angle=0
-
 const shottype=ref(3)
 const Arccenter={
   x:W/2,
@@ -40,11 +39,11 @@ function createHDCanvas (w=400,h=400,canvas:HTMLCanvasElement|undefined) {
 // 本地存储
 const Camera_height=reactive({
    x:35,
-   y:70
+   y:JSON.parse(localStorage.getItem('Camera_height')!)??70
 })
 const point_height=reactive({
    x:352.5,
-   y:70
+   y:JSON.parse(localStorage.getItem('point_height')!)??70
 })
 
 
@@ -300,11 +299,18 @@ function init() {
  textDraw(ctx,330,205,18,"6")
 }
 const a=()=>{
-      Camera_height.y=y.value
- }
+  if (y.value<=330&&y.value>40) {
+    Camera_height.y=y.value
+   
+  }
+}
+//重复代码
  const b=()=>{
-      point_height.y=y.value
-      console.log(y.value);
+  if (y.value<=330&&y.value>40) {
+    point_height.y=y.value
+    
+  }
+    
  }
    
 onMounted(()=>{
@@ -325,10 +331,10 @@ onMounted(()=>{
    canvas4.value!.removeEventListener('mousemove',ArcmoVE)
  }
  addEventListener('mousemove',()=>{
-  console.log(x.value);
-  console.log(y.value);
-  
-   if (x.value<62&&x.value>30&&y.value==Camera_height.y||x.value<=Arc.x+20&&x.value>=Arc.x-20&&y.value==Arc.y||x.value<=360&&x.value>=345&&y.value==point_height.y) {
+
+   if (x.value<Camera_height.x+20&&x.value>Camera_height.x-20&&y.value<=Camera_height.y+10&&y.value>=Camera_height.y-10
+   ||
+   x.value<=Arc.x+20&&x.value>=Arc.x-20&&y.value<=Arc.y+10||x.value<=Arc.x+20&&x.value>=point_height.x-20&&y.value<=point_height.y+10&&y.value>=point_height.y-10) {
   document.documentElement.style.cursor='pointer'
    }else{
     document.documentElement.style.cursor=''
@@ -337,12 +343,11 @@ onMounted(()=>{
  
    
  addEventListener('mousedown',()=>{
-  if (x.value<62&&x.value>30&&y.value==Camera_height.y) {
+  if (x.value<Camera_height.x+20&&x.value>Camera_height.x-20&&y.value<=Camera_height.y+10&&y.value>=Camera_height.y-10) {
     document.documentElement.style.cursor='pointer'
     removeEventListener('mousemove', b, false); // 
     addEventListener('mousemove',a,false)
-    console.log("1");
-  }else  if(x.value<=360&&x.value>=345&&y.value==point_height.y) {
+  }else  if(x.value<=point_height.x+20&&x.value>=point_height.x-20&&y.value<=point_height.y+10&&y.value>=point_height.y-10) {
     addEventListener('mousemove',b,false)
   }
  
@@ -353,6 +358,8 @@ onMounted(()=>{
 
    removeEventListener('mousemove',a)
    removeEventListener('mousemove',b)
+   localStorage.setItem('Camera_height',Camera_height.y.toString())
+   localStorage.setItem('point_height',point_height.y.toString())
  }) 
  addEventListener('keydown',(even:KeyboardEvent)=>{
   if (time.open==false&&focal_length.open==false) {
@@ -420,6 +427,26 @@ onMounted(()=>{
      name(ctx4)
      linereal(ctx4,Arc.x,Arc.y,Arccenter.x,Arccenter.y)
     })
+  const api=async ()=>{
+    await fetch('https://...', {
+    method: 'post',
+
+    //纯模拟
+    body: JSON.stringify([{
+      '摄像机高度':Camera_height.y,
+       '兴趣点高度':point_height.y,
+       '焦段':focal_length.content,
+       '时长':time.content,
+       '景别':shottype,
+    }]),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(function(data) {
+  data.json()
+
+  })
+  }
 </script>
 
 <template>
@@ -442,6 +469,7 @@ onMounted(()=>{
      </section>
      <!-- <section >2</section> -->
   </div>
+  <button @click="api()">接口</button>
 </template>
 <style scoped>
 div{

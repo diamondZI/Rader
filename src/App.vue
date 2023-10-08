@@ -5,8 +5,9 @@
 <template>
   <main>
     <div class="button"> 
-    <button>Canvas</button>
-    <button>Div</button>
+   <RouterLink to="/"> <button>Canvas</button></RouterLink>
+   <RouterLink to="/about"> <button>div</button></RouterLink>
+    
     </div>
       <RouterView></RouterView>
   
